@@ -7,7 +7,7 @@ public class DeviceManager
 {
     private List<Device> _devices = new();
     private string _filePath;
-    private string _outputFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_HomeWorkProject\\ABPD_HW_02\\ABPD_HW_02\\resources\\output.txt";
+    private string _outputFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02\\resources\\output.txt";
     private const int MaxDevices = 15; //max count is 15
     
     public DeviceManager(string filePath)

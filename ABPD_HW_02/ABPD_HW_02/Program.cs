@@ -8,7 +8,7 @@ class Program
     public static void Main(string[] args)
     {
             //path to the CSV-like file that holds device information.
-            string filePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_HomeWorkProject\\ABPD_HW_02\\ABPD_HW_02\\resources\\input.txt"; 
+            string filePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02\\resources\\input.txt"; 
             
             //instantiate the DeviceManager, which should automatically loads devices from the file.
             var deviceManager = new DeviceManager(filePath);

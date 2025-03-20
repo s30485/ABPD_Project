@@ -16,7 +16,7 @@ public class DeviceManagerTest
     public DeviceManagerTest()
     {
         //I need to do relative path but I have no clue how xdddddddd
-        _testFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_HomeWorkProject\\ABPD_HW_02\\ABPD_HW_02.Tests\\testResources\\test_input.txt";
+        _testFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02.Tests\\testResources\\test_input.txt";
         
         _deviceManager = new DeviceManager(_testFilePath);
     }
