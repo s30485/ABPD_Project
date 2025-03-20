@@ -5,7 +5,7 @@ namespace ABPD_HW_02.Managers;
 
 public class DeviceManager
 {
-    private List<Device> _devices = new();
+    public List<Device> _devices = new();
     private string _filePath;
     private string _outputFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02\\resources\\output.txt";
     private const int MaxDevices = 15; //max count is 15
@@ -181,7 +181,7 @@ public class DeviceManager
     }
     public void TurnOffDevice(string deviceType, int id) //turn off device with a given id
     {
-        Device? device = null;
+        Device device = null;
 
         if (deviceType == "SW")
         {

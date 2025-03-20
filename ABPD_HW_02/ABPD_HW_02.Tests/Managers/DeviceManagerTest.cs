@@ -7,6 +7,17 @@ using Xunit;
 
 namespace ABPD_HW_02.Tests.Managers;
 
+//to test: 
+//constructor
+//loadDevices
+//addDevice
+//removeDevice
+//editDeviceData
+//turnOnDevice
+//turnOffDevice
+//showAllDevices
+//saveDevicesData
+
 [TestSubject(typeof(DeviceManager))]
 public class DeviceManagerTest
 {
@@ -24,7 +35,17 @@ public class DeviceManagerTest
     [Fact]
     public void ConstructorTest()
     {
+        DeviceManager manager = new DeviceManager(_testFilePath);
         
+        int expectedDeviceCount = 5;
+        
+        int count = 0;
+        foreach (var line in File.ReadLines(_testFilePath))
+        {
+            count++;
+        }
+        
+        Assert.Equal(count, expectedDeviceCount);
     }
     
     
