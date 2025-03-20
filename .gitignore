@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 ABPD_HW_02/ABPD_HW_02.sln
+.idea/
