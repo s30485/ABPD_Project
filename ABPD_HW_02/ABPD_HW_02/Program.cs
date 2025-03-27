@@ -1,4 +1,5 @@
-﻿using ABPD_HW_02.Managers;
+﻿using ABPD_HW_02.Factories;
+using ABPD_HW_02.Managers;
 using ABPD_HW_02.Models;
 
 namespace ABPD_HW_02;
@@ -11,8 +12,9 @@ class Program
         string filePath =
             "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02\\resources\\input.txt";
 
+        string outputFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02\\resources\\output.txt";
         //instantiate the DeviceManager, which should automatically loads devices from the file.
-        var deviceManager = new DeviceManager(filePath);
+        var deviceManager = DeviceManagerFactory.Create(filePath, outputFilePath);
 
         Console.WriteLine("Initial Device List (Loaded from file):");
         deviceManager.ShowAllDevices();

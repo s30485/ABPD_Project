@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using ABPD_HW_02.Factories;
 using ABPD_HW_02.Managers;
 using ABPD_HW_02.Models;
 using JetBrains.Annotations;
@@ -30,17 +31,18 @@ public class DeviceManagerTest
         //I need to do relative path but I have no clue how xdddddddd
         _testFilePath = "C:\\Users\\Admin\\Desktop\\PJATK\\UNI_GIT_REPOS\\ABPD_Project\\ABPD_HW_02\\ABPD_HW_02.Tests\\testResources\\test_input.txt";
         
-        _deviceManager = new DeviceManager(_testFilePath);
+        _deviceManager = DeviceManagerFactory.Create(_testFilePath, "dummy_output.txt");
+
     }
 
     [Fact]
     public void ConstructorTest()
     {
-        DeviceManager manager = new DeviceManager(_testFilePath);
+        _deviceManager = DeviceManagerFactory.Create(_testFilePath, "dummy_output.txt");
         
         int expectedDeviceCount = 5;
         
-        Assert.Equal(manager._devices.Count, expectedDeviceCount);
+        Assert.Equal(_deviceManager._devices.Count, expectedDeviceCount);
     }
     
     
@@ -143,8 +145,4 @@ public class DeviceManagerTest
             Assert.Fail($"No Smartwatch with ID={targetId} found to verify turn-off.");
         }
     }
-    
-    //I don't know how to test printing xdddd
-    //I don't think its even needed
-
 }
