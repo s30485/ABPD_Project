@@ -53,7 +53,7 @@ class Program
         //PC with ID=1
         deviceManager.TurnOnDevice("P", 1);
         //EmbeddedDevice with ID=2 (if it exists)
-        deviceManager.TurnOnDevice("ED", 2);
+        //deviceManager.TurnOnDevice("ED", 2); -> will throw an exception and close the program
         Console.WriteLine("Attempted to turn on SW-99, P-1, and ED-2 (if ED-3 exists).");
         deviceManager.ShowAllDevices();
         Console.WriteLine();
