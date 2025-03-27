@@ -54,9 +54,9 @@ public class DeviceManager
     /// <summary>
     /// Edits a property of a device.
     /// </summary>
-    /// <param name="deviceType">Device type identifier ("SW", "P", "ED").</param>
+    /// <param name="deviceType">Device type identifier ("SW", "P", "ED", ...).</param>
     /// <param name="id">ID of the device to modify.</param>
-    /// <param name="property">The name of the property to edit (e.g., "Battery", "OS").</param>
+    /// <param name="property">The name of the property to edit ("Battery", "OS", ...).</param>
     /// <param name="newValue">The new value to set.</param>
     public void EditDeviceData(string deviceType, int id, string property, object newValue)
     {

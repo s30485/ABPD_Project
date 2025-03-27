@@ -2,10 +2,19 @@
 
 namespace ABPD_HW_02.Models;
 
+/// <summary>
+/// Represents an embedded device with ip adress and network name
+/// </summary>
 public class EmbeddedDevice : Device
 {
+    
     private static readonly Regex IpRegex = new(@"^(\d{1,3}\.){3}\d{1,3}$");
     private string _ipAddress;
+    
+    /// <summary>
+    /// Gets or sets ip address of device.
+    /// </summary>
+    /// Throws <exception cref="ArgumentException"></exception>
     public string IpAddress 
     { 
         get => _ipAddress;
@@ -16,8 +25,16 @@ public class EmbeddedDevice : Device
             _ipAddress = value;
         }
     }
+    
+    /// <summary>
+    /// Gets or sets network name of the device
+    /// </summary>
     public string NetworkName { get; set; }
     
+    /// <summary>
+    /// Attempts to commect the device to its network
+    /// </summary>
+    /// Throws <exception cref="ConnectionException"></exception>
     public void Connect()
     {
         if (!NetworkName.Contains("MD Ltd.")) throw new ConnectionException();
@@ -26,6 +43,9 @@ public class EmbeddedDevice : Device
         Console.WriteLine("Connected successfully.");
     }
 
+    /// <summary>
+    /// overrided turn on method.
+    /// </summary>
     public override void TurnOn()
     {
         Connect();
@@ -33,5 +53,9 @@ public class EmbeddedDevice : Device
         IsTurnedOn = true;
     }
 
+    /// <summary>
+    /// overrided toString method
+    /// </summary>
+    /// <returns></returns>
     public override string ToString() => $"Embedded Device [ID: {Id}, Name: {Name}, IP: {IpAddress}, Network: {NetworkName}, On: {IsTurnedOn}]";
 }
