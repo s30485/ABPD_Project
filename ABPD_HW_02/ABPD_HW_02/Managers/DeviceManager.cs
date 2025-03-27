@@ -151,17 +151,24 @@ public class DeviceManager
     public void TurnOnDevice(string deviceType, int id)
     {
         Device device = null;
-        if (deviceType == "SW")
+
+        foreach (var d in _devices)
         {
-            device = _devices.FirstOrDefault(d => d is Smartwatch sw && sw.Id == id);
-        }
-        else if (deviceType == "P")
-        {
-            device = _devices.FirstOrDefault(d => d is PersonalComputer pc && pc.Id == id);
-        }
-        else if (deviceType == "ED")
-        {
-            device = _devices.FirstOrDefault(d => d is EmbeddedDevice embDev && embDev.Id == id);
+            if (deviceType == "SW" && d is Smartwatch sw && sw.Id == id)
+            {
+                device = sw;
+                break;
+            }
+            else if (deviceType == "P" && d is PersonalComputer pc && pc.Id == id)
+            {
+                device = pc;
+                break;
+            }
+            else if (deviceType == "ED" && d is EmbeddedDevice embDev && embDev.Id == id)
+            {
+                device = embDev;
+                break;
+            }
         }
 
         if (device == null)
@@ -179,21 +186,28 @@ public class DeviceManager
             Console.WriteLine($"Could not turn on {deviceType}-{id}. Reason: {ex.Message}");
         }
     }
-    public void TurnOffDevice(string deviceType, int id) //turn off device with a given id
+
+    public void TurnOffDevice(string deviceType, int id)
     {
         Device device = null;
 
-        if (deviceType == "SW")
+        foreach (var d in _devices)
         {
-            device = _devices.FirstOrDefault(d => d is Smartwatch sw && sw.Id == id);
-        }
-        else if (deviceType == "P")
-        {
-            device = _devices.FirstOrDefault(d => d is PersonalComputer pc && pc.Id == id);
-        }
-        else if (deviceType == "ED")
-        {
-            device = _devices.FirstOrDefault(d => d is EmbeddedDevice embDev && embDev.Id == id);
+            if (deviceType == "SW" && d is Smartwatch sw && sw.Id == id)
+            {
+                device = sw;
+                break;
+            }
+            else if (deviceType == "P" && d is PersonalComputer pc && pc.Id == id)
+            {
+                device = pc;
+                break;
+            }
+            else if (deviceType == "ED" && d is EmbeddedDevice embDev && embDev.Id == id)
+            {
+                device = embDev;
+                break;
+            }
         }
 
         if (device == null)
@@ -211,6 +225,7 @@ public class DeviceManager
             Console.WriteLine($"Could not turn off {deviceType}-{id}. Reason: {ex.Message}");
         }
     }
+
     public void ShowAllDevices()
     {
         foreach (var device in _devices) Console.WriteLine(device);
