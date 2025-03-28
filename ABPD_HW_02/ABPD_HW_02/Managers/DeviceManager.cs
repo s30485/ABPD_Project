@@ -119,6 +119,7 @@ public class DeviceManager
     /// </summary>
     public void ShowAllDevices()
     {
+        Console.WriteLine("All devices:");
         foreach (var device in _devices)
             Console.WriteLine(device);
     }
