@@ -35,8 +35,22 @@ public class DeviceManager
     {
         if (_devices.Count >= MaxDevices)
             throw new InvalidOperationException("Device storage is full.");
+
+        // If no ID was provided (equals 0), assign a new one based on device type
+        if (device.Id == 0)
+        {
+            int newId = _devices
+                .Where(d => d.GetType() == device.GetType())
+                .Select(d => d.Id)
+                .DefaultIfEmpty(0)
+                .Max() + 1;
+
+            device.Id = newId;
+        }
+
         _devices.Add(device);
     }
+
 
     /// <summary>
     /// Removes a device by type and ID.
