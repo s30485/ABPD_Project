@@ -1,44 +1,38 @@
+using ABPD_HW_02.Factories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//register DeviceManager as a singleton (loaded from file)
+builder.Services.AddSingleton<ABPD_HW_02.Managers.DeviceManager>(sp =>
+{
+    string inputFilePath = "resources/input.txt";
+    string outputFilePath = "resources/output.txt";
+    return DeviceManagerFactory.Create(inputFilePath, outputFilePath);
+});
+
+//path to the CSV-like file that holds device information.
+string filePath = "resources/input.txt";
+
+string outputFilePath = "resources/output.txt";
+//instantiate the DeviceManager, which should automatically loads devices from the file.
+        
+var deviceManager = DeviceManagerFactory.Create(filePath, outputFilePath);
+
+Console.WriteLine("Initial Device List (Loaded from file):");
+deviceManager.ShowAllDevices();
+Console.WriteLine();
+
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
