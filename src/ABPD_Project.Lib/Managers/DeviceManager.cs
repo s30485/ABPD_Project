@@ -36,6 +36,11 @@ public class DeviceManager
         _outputFilePath = outputFilePath;
     }
 
+    private DeviceManager()
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Adds a device to the internal device list.
     /// </summary>
