@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using ABPD_HW_02;
 using ABPD_HW_02.Models;
-
-namespace ABPD_HW_02.Managers;
 
 /// <summary>
 /// Manages a collection of devices, allowing operations such as loading, modifying, and saving devices.
@@ -12,6 +11,17 @@ public class DeviceManager
     private const int MaxDevices = 15;
     private readonly IDeviceSaver _deviceSaver;
     private readonly string _outputFilePath;
+    private static DeviceManager? _instance = null;
+
+    public static DeviceManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = new DeviceManager();
+            return _instance;
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the "DeviceManager" class.

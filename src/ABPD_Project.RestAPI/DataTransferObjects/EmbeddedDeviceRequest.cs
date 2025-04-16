@@ -1,4 +1,5 @@
-﻿namespace DeviceManager.RestAPI.DataTransferObjects;
+﻿
+namespace ABPD_Project.RestAPI.DataTransferObjects;
 
 /// <summary>
 /// Request DTO for creating or updating an Embedded Device.

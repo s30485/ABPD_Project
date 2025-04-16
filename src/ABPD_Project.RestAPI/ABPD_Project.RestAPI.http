@@ -1,0 +1,6 @@
+@ABPD_Project.RestAPI_HostAddress = http://localhost:5019
+
+GET {{ABPD_Project.RestAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

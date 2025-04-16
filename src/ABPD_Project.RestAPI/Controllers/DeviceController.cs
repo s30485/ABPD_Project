@@ -1,10 +1,8 @@
 ﻿using System.Text.Json;
 using ABPD_HW_02.Models;
-using DeviceManager.RestAPI.DataTransferObjects;
+using ABPD_Project.RestAPI.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DeviceManager.RestAPI.Controllers
-{
     /// <summary>
     /// Controller for managing devices via REST.
     /// </summary>
@@ -12,21 +10,17 @@ namespace DeviceManager.RestAPI.Controllers
     [ApiController]
     public class DeviceController : ControllerBase
     {
-        private readonly ABPD_HW_02.Managers.DeviceManager _deviceManager;
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceController"/> class.
         /// </summary>
         /// <param name="deviceManager">The injected DeviceManager instance.</param>
-        public DeviceController(ABPD_HW_02.Managers.DeviceManager deviceManager)
-        {
-            _deviceManager = deviceManager;
-        }
         
         [HttpGet]
         public IActionResult GetAll()
         {
-            var shortInfo = _deviceManager._devices.Select(d => new
+            var shortInfo = DeviceManager.Instance._devices.Select(d => new
             {
                 d.Id,
                 d.Name,
@@ -38,7 +32,7 @@ namespace DeviceManager.RestAPI.Controllers
         [HttpGet("{deviceType}/{id}")]
         public IActionResult GetById(string deviceType, int id)
         {
-            var device = _deviceManager._devices
+            var device = DeviceManager.Instance._devices
                 .FirstOrDefault(d => d.Id == id && GetDeviceTypePrefix(d).Equals(deviceType, StringComparison.OrdinalIgnoreCase));
             if (device == null)
                 return NotFound();
@@ -49,7 +43,7 @@ namespace DeviceManager.RestAPI.Controllers
         /// Creates a new Smartwatch.
         /// </summary>
         [HttpPost("SW")]
-        public IActionResult CreateSmartwatch([FromBody] SmartwatchRequest request)
+        public BadRequestObjectResult CreateSmartwatch([FromBody] SmartwatchRequest request)
         {
             try
             {
@@ -59,8 +53,8 @@ namespace DeviceManager.RestAPI.Controllers
                     Name = request.Name,
                     BatteryPercentage = request.BatteryPercentage
                 };
-                _deviceManager.AddDevice(device);
-                return CreatedAtAction(nameof(GetById), new { deviceType = "SW", id = device.Id }, device);
+                DeviceManager.Instance.AddDevice(device);
+                return new BadRequestObjectResult(CreatedAtAction(nameof(GetById), new { deviceType = "SW", id = device.Id }, device));
             }
             catch (Exception ex)
             {
@@ -81,7 +75,7 @@ namespace DeviceManager.RestAPI.Controllers
                     Name = request.Name,
                     OperatingSystem = request.OperatingSystem
                 };
-                _deviceManager.AddDevice(device);
+                DeviceManager.Instance.AddDevice(device);
                 return CreatedAtAction(nameof(GetById), new { deviceType = "P", id = device.Id }, device);
             }
             catch (Exception ex)
@@ -104,7 +98,7 @@ namespace DeviceManager.RestAPI.Controllers
                     IpAddress = request.IpAddress,
                     NetworkName = request.NetworkName
                 };
-                _deviceManager.AddDevice(device);
+                DeviceManager.Instance.AddDevice(device);
                 return CreatedAtAction(nameof(GetById), new { deviceType = "ED", id = device.Id }, device);
             }
             catch (Exception ex)
@@ -119,19 +113,19 @@ namespace DeviceManager.RestAPI.Controllers
         [HttpPut("SW/{id}")]
         public IActionResult UpdateSmartwatch(int id, [FromBody] SmartwatchRequest request)
         {
-            var existing = _deviceManager._devices.FirstOrDefault(d => d.Id == id && d is Smartwatch);
+            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is Smartwatch);
             if (existing == null)
                 return NotFound();
 
             //remove the existing device and add the updated one.
-            _deviceManager.RemoveDevice("SW", id);
+            DeviceManager.Instance.RemoveDevice("SW", id);
             var device = new Smartwatch
             {
                 Name = request.Name,
                 BatteryPercentage = request.BatteryPercentage,
                 Id = id  //preserve the original ID for update
             };
-            _deviceManager.AddDevice(device);
+            DeviceManager.Instance.AddDevice(device);
             return NoContent();
         }
 
@@ -141,18 +135,18 @@ namespace DeviceManager.RestAPI.Controllers
         [HttpPut("P/{id}")]
         public IActionResult UpdatePersonalComputer(int id, [FromBody] PersonalComputerRequest request)
         {
-            var existing = _deviceManager._devices.FirstOrDefault(d => d.Id == id && d is PersonalComputer);
+            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is PersonalComputer);
             if (existing == null)
                 return NotFound();
 
-            _deviceManager.RemoveDevice("P", id);
+            DeviceManager.Instance.RemoveDevice("P", id);
             var device = new PersonalComputer
             {
                 Name = request.Name,
                 OperatingSystem = request.OperatingSystem,
                 Id = id
             };
-            _deviceManager.AddDevice(device);
+            DeviceManager.Instance.AddDevice(device);
             return NoContent();
         }
 
@@ -162,11 +156,11 @@ namespace DeviceManager.RestAPI.Controllers
         [HttpPut("ED/{id}")]
         public IActionResult UpdateEmbeddedDevice(int id, [FromBody] EmbeddedDeviceRequest request)
         {
-            var existing = _deviceManager._devices.FirstOrDefault(d => d.Id == id && d is EmbeddedDevice);
+            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is EmbeddedDevice);
             if (existing == null)
                 return NotFound();
 
-            _deviceManager.RemoveDevice("ED", id);
+            DeviceManager.Instance.RemoveDevice("ED", id);
             var device = new EmbeddedDevice
             {
                 Name = request.Name,
@@ -174,7 +168,7 @@ namespace DeviceManager.RestAPI.Controllers
                 NetworkName = request.NetworkName,
                 Id = id
             };
-            _deviceManager.AddDevice(device);
+            DeviceManager.Instance.AddDevice(device);
             return NoContent();
         }
 
@@ -184,12 +178,12 @@ namespace DeviceManager.RestAPI.Controllers
         [HttpDelete("{deviceType}/{id}")]
         public IActionResult Delete(string deviceType, int id)
         {
-            var existing = _deviceManager._devices.FirstOrDefault(d =>
+            var existing = DeviceManager.Instance._devices.FirstOrDefault(d =>
                 d.Id == id && GetDeviceTypePrefix(d).Equals(deviceType, StringComparison.OrdinalIgnoreCase));
             if (existing == null)
                 return NotFound();
 
-            _deviceManager.RemoveDevice(deviceType, id);
+            DeviceManager.Instance.RemoveDevice(deviceType, id);
             return NoContent();
         }
 
@@ -204,4 +198,3 @@ namespace DeviceManager.RestAPI.Controllers
             return string.Empty;
         }
     }
-}
