@@ -3,198 +3,249 @@ using ABPD_HW_02.Models;
 using ABPD_Project.RestAPI.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
 
+namespace ABPD_Project.RestAPI.Controllers
+{
     /// <summary>
-    /// Controller for managing devices via REST.
+    /// Controller for managing devices via REST endpoints.
     /// </summary>
     [Route("api/devices")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
-        
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeviceController"/> class.
+        /// Retrieves a summary list of all devices.
         /// </summary>
-        /// <param name="deviceManager">The injected DeviceManager instance.</param>
-        
+        /// <returns>An <see cref="IResult"/> containing a list of device IDs, names, and types.</returns>
         [HttpGet]
-        public IActionResult GetAll()
+        public IResult GetAll()
         {
-            var shortInfo = DeviceManager.Instance._devices.Select(d => new
-            {
-                d.Id,
-                d.Name,
-                Type = GetDeviceTypePrefix(d)
-            });
-            return Ok(shortInfo);
+            var list = DeviceManager.Instance._devices
+                        .Select(d => new
+                        {
+                            d.Id,
+                            d.Name,
+                            Type = GetDeviceTypePrefix(d)
+                        });
+            return Results.Ok(list);
         }
 
-        [HttpGet("{deviceType}/{id}")]
-        public IActionResult GetById(string deviceType, int id)
+        /// <summary>
+        /// Retrieves a single device by its string identifier.
+        /// </summary>
+        /// <param name="id">The string ID of the device (e.g. "SW-1").</param>
+        /// <returns>
+        /// 200 OK with the device object if found;  
+        /// 404 Not Found otherwise.
+        /// </returns>
+        [HttpGet("{id}")]
+        public IResult GetById(string id)
         {
             var device = DeviceManager.Instance._devices
-                .FirstOrDefault(d => d.Id == id && GetDeviceTypePrefix(d).Equals(deviceType, StringComparison.OrdinalIgnoreCase));
-            if (device == null)
-                return NotFound();
-            return Ok(device);
+                .FirstOrDefault(d => d.Id == id);
+
+            return device is null
+                ? Results.NotFound()
+                : Results.Ok(device);
         }
 
         /// <summary>
-        /// Creates a new Smartwatch.
+        /// Creates a new <see cref="Smartwatch"/>.
         /// </summary>
-        [HttpPost("SW")]
-        public BadRequestObjectResult CreateSmartwatch([FromBody] SmartwatchRequest request)
+        /// <param name="req">The details of the smartwatch to create.</param>
+        /// <returns>
+        /// 201 Created with a Location header pointing to <c>/api/devices/{id}</c> on success;  
+        /// 400 Bad Request on validation or creation error.
+        /// </returns>
+        [HttpPost("smartwatches")]
+        public IResult CreateSmartwatch([FromBody] SmartwatchRequest req)
         {
             try
             {
                 var device = new Smartwatch
                 {
-                    //ID not set; AddDevice will auto-assign it -> changed the method in DeviceManager.cs in diferent project
-                    Name = request.Name,
-                    BatteryPercentage = request.BatteryPercentage
+                    Name = req.Name,
+                    BatteryPercentage = req.BatteryPercentage
                 };
                 DeviceManager.Instance.AddDevice(device);
-                return new BadRequestObjectResult(CreatedAtAction(nameof(GetById), new { deviceType = "SW", id = device.Id }, device));
+
+                return Results.Created($"/api/devices/{device.Id}", device);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Results.BadRequest(ex.Message);
             }
         }
 
         /// <summary>
-        /// Creates a new Personal Computer.
+        /// Updates an existing <see cref="Smartwatch"/>.
         /// </summary>
-        [HttpPost("P")]
-        public IActionResult CreatePersonalComputer([FromBody] PersonalComputerRequest request)
+        /// <param name="id">The string ID of the smartwatch to update.</param>
+        /// <param name="req">The new property values.</param>
+        /// <returns>
+        /// 204 No Content on successful update;  
+        /// 404 Not Found if the device does not exist.
+        /// </returns>
+        [HttpPut("smartwatches/{id}")]
+        public IResult UpdateSmartwatch(string id, [FromBody] SmartwatchRequest req)
+        {
+            var existing = DeviceManager.Instance._devices
+                .FirstOrDefault(d => d.Id == id && d is Smartwatch);
+            if (existing is null) return Results.NotFound();
+
+            DeviceManager.Instance.RemoveDevice(id);
+            var updated = new Smartwatch
+            {
+                Id = id,
+                Name = req.Name,
+                BatteryPercentage = req.BatteryPercentage
+            };
+            DeviceManager.Instance.AddDevice(updated);
+            return Results.NoContent();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PersonalComputer"/>.
+        /// </summary>
+        /// <param name="req">The details of the PC to create.</param>
+        /// <returns>
+        /// 201 Created on success;  
+        /// 400 Bad Request on error.
+        /// </returns>
+        [HttpPost("personalcomputers")]
+        public IResult CreatePersonalComputer([FromBody] PersonalComputerRequest req)
         {
             try
             {
                 var device = new PersonalComputer
                 {
-                    Name = request.Name,
-                    OperatingSystem = request.OperatingSystem
+                    Name = req.Name,
+                    OperatingSystem = req.OperatingSystem
                 };
                 DeviceManager.Instance.AddDevice(device);
-                return CreatedAtAction(nameof(GetById), new { deviceType = "P", id = device.Id }, device);
+                return Results.Created($"/api/devices/{device.Id}", device);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Results.BadRequest(ex.Message);
             }
         }
 
         /// <summary>
-        /// Creates a new Embedded Device.
+        /// Updates an existing <see cref="PersonalComputer"/>.
         /// </summary>
-        [HttpPost("ED")]
-        public IActionResult CreateEmbeddedDevice([FromBody] EmbeddedDeviceRequest request)
+        /// <param name="id">The string ID of the PC to update.</param>
+        /// <param name="req">The new property values.</param>
+        /// <returns>
+        /// 204 No Content on success;  
+        /// 404 Not Found if not found.
+        /// </returns>
+        [HttpPut("personalcomputers/{id}")]
+        public IResult UpdatePersonalComputer(string id, [FromBody] PersonalComputerRequest req)
+        {
+            var existing = DeviceManager.Instance._devices
+                .FirstOrDefault(d => d.Id == id && d is PersonalComputer);
+            if (existing is null) return Results.NotFound();
+
+            DeviceManager.Instance.RemoveDevice(id);
+            var updated = new PersonalComputer
+            {
+                Id = id,
+                Name = req.Name,
+                OperatingSystem = req.OperatingSystem
+            };
+            DeviceManager.Instance.AddDevice(updated);
+            return Results.NoContent();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="EmbeddedDevice"/>.
+        /// </summary>
+        /// <param name="req">The details of the embedded device to create.</param>
+        /// <returns>
+        /// 201 Created on success;  
+        /// 400 Bad Request on error.
+        /// </returns>
+        [HttpPost("embeddeddevices")]
+        public IResult CreateEmbeddedDevice([FromBody] EmbeddedDeviceRequest req)
         {
             try
             {
                 var device = new EmbeddedDevice
                 {
-                    Name = request.Name,
-                    IpAddress = request.IpAddress,
-                    NetworkName = request.NetworkName
+                    Name = req.Name,
+                    IpAddress = req.IpAddress,
+                    NetworkName = req.NetworkName
                 };
                 DeviceManager.Instance.AddDevice(device);
-                return CreatedAtAction(nameof(GetById), new { deviceType = "ED", id = device.Id }, device);
+                return Results.Created($"/api/devices/{device.Id}", device);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Results.BadRequest(ex.Message);
             }
         }
 
         /// <summary>
-        /// Updates an existing Smartwatch.
+        /// Updates an existing <see cref="EmbeddedDevice"/>.
         /// </summary>
-        [HttpPut("SW/{id}")]
-        public IActionResult UpdateSmartwatch(int id, [FromBody] SmartwatchRequest request)
+        /// <param name="id">The string ID of the embedded device to update.</param>
+        /// <param name="req">The new property values.</param>
+        /// <returns>
+        /// 204 No Content on success;  
+        /// 404 Not Found if the device does not exist.
+        /// </returns>
+        [HttpPut("embeddeddevices/{id}")]
+        public IResult UpdateEmbeddedDevice(string id, [FromBody] EmbeddedDeviceRequest req)
         {
-            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is Smartwatch);
-            if (existing == null)
-                return NotFound();
+            var existing = DeviceManager.Instance._devices
+                .FirstOrDefault(d => d.Id == id && d is EmbeddedDevice);
+            if (existing is null) return Results.NotFound();
 
-            //remove the existing device and add the updated one.
-            DeviceManager.Instance.RemoveDevice("SW", id);
-            var device = new Smartwatch
+            DeviceManager.Instance.RemoveDevice(id);
+            var updated = new EmbeddedDevice
             {
-                Name = request.Name,
-                BatteryPercentage = request.BatteryPercentage,
-                Id = id  //preserve the original ID for update
+                Id = id,
+                Name = req.Name,
+                IpAddress = req.IpAddress,
+                NetworkName = req.NetworkName
             };
-            DeviceManager.Instance.AddDevice(device);
-            return NoContent();
+            DeviceManager.Instance.AddDevice(updated);
+            return Results.NoContent();
         }
 
         /// <summary>
-        /// Updates an existing Personal Computer.
+        /// Deletes a device by its string ID.
         /// </summary>
-        [HttpPut("P/{id}")]
-        public IActionResult UpdatePersonalComputer(int id, [FromBody] PersonalComputerRequest request)
+        /// <param name="id">The string ID of the device to delete.</param>
+        /// <returns>
+        /// 204 No Content on success;  
+        /// 404 Not Found if the device does not exist.
+        /// </returns>
+        [HttpDelete("{id}")]
+        public IResult Delete(string id)
         {
-            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is PersonalComputer);
-            if (existing == null)
-                return NotFound();
+            var existing = DeviceManager.Instance._devices
+                .FirstOrDefault(d => d.Id == id);
+            if (existing is null) return Results.NotFound();
 
-            DeviceManager.Instance.RemoveDevice("P", id);
-            var device = new PersonalComputer
+            DeviceManager.Instance.RemoveDevice(id);
+            return Results.NoContent();
+        }
+
+        /// <summary>
+        /// Determines the device type prefix for serialization in <see cref="GetAll"/>.
+        /// </summary>
+        /// <param name="d">The device instance.</param>
+        /// <returns>A two-letter prefix: "SW", "P", or "ED".</returns>
+        private string GetDeviceTypePrefix(Device d)
+        {
+            return d switch
             {
-                Name = request.Name,
-                OperatingSystem = request.OperatingSystem,
-                Id = id
+                Smartwatch => "SW",
+                PersonalComputer => "P",
+                EmbeddedDevice => "ED",
+                _ => string.Empty
             };
-            DeviceManager.Instance.AddDevice(device);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Updates an existing Embedded Device.
-        /// </summary>
-        [HttpPut("ED/{id}")]
-        public IActionResult UpdateEmbeddedDevice(int id, [FromBody] EmbeddedDeviceRequest request)
-        {
-            var existing = DeviceManager.Instance._devices.FirstOrDefault(d => d.Id == id && d is EmbeddedDevice);
-            if (existing == null)
-                return NotFound();
-
-            DeviceManager.Instance.RemoveDevice("ED", id);
-            var device = new EmbeddedDevice
-            {
-                Name = request.Name,
-                IpAddress = request.IpAddress,
-                NetworkName = request.NetworkName,
-                Id = id
-            };
-            DeviceManager.Instance.AddDevice(device);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Deletes an existing device.
-        /// </summary>
-        [HttpDelete("{deviceType}/{id}")]
-        public IActionResult Delete(string deviceType, int id)
-        {
-            var existing = DeviceManager.Instance._devices.FirstOrDefault(d =>
-                d.Id == id && GetDeviceTypePrefix(d).Equals(deviceType, StringComparison.OrdinalIgnoreCase));
-            if (existing == null)
-                return NotFound();
-
-            DeviceManager.Instance.RemoveDevice(deviceType, id);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Helper method to determine the device type prefix.
-        /// </summary>
-        private string GetDeviceTypePrefix(Device device)
-        {
-            if (device is Smartwatch) return "SW";
-            if (device is PersonalComputer) return "P";
-            if (device is EmbeddedDevice) return "ED";
-            return string.Empty;
         }
     }
+}
