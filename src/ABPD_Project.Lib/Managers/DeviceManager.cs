@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using ABPD_HW_02;
+using ABPD_HW_02.Factories;
 using ABPD_HW_02.Models;
+using ABPD_HW_02.Services;
 
 /// <summary>
 /// Manages a collection of devices, allowing operations such as loading, modifying, and saving devices.
@@ -37,8 +39,17 @@ public class DeviceManager
     }
 
     private DeviceManager()
-    {
-        throw new NotImplementedException();
+    { 
+        const string inputFilePath  = "resources/input.txt";
+        const string outputFilePath = "devices_output.txt";
+
+        // delegate to DeviceManagerFactory
+        var real = DeviceManagerFactory.Create(inputFilePath, outputFilePath);
+
+        // copy over everything
+        _devices = real._devices;
+        _deviceSaver = real._deviceSaver;
+        _outputFilePath = real._outputFilePath;
     }
 
     /// <summary>
@@ -51,16 +62,28 @@ public class DeviceManager
         if (_devices.Count >= MaxDevices)
             throw new InvalidOperationException("Device storage is full.");
 
-        // If no ID was provided (equals 0), assign a new one based on device type
-        if (device.Id == 0)
+        // If no ID was provided, generate one like "SW-1", "P-2", "ED-3", etc.
+        if (string.IsNullOrWhiteSpace(device.Id))
         {
-            int newId = _devices
-                .Where(d => d.GetType() == device.GetType())
-                .Select(d => d.Id)
-                .DefaultIfEmpty(0)
-                .Max() + 1;
+            // Determine the prefix by device type
+            var prefix = device switch
+            {
+                Smartwatch       => "SW",
+                PersonalComputer => "P",
+                EmbeddedDevice   => "ED",
+                _ => throw new InvalidOperationException("Unknown device type.")
+            };
 
-            device.Id = newId;
+            // Find existing suffix numbers for this prefix
+            var maxSuffix = _devices
+                .Where(d => d.Id.StartsWith(prefix + "-"))
+                .Select(d => d.Id.Substring(prefix.Length + 1))
+                .Select(s => int.TryParse(s, out var n) ? n : 0)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            // Assign next available
+            device.Id = $"{prefix}-{maxSuffix + 1}";
         }
 
         _devices.Add(device);
@@ -87,10 +110,9 @@ public class DeviceManager
     public void EditDeviceData(string id, string property, object newValue)
     {
         var device = _devices.FirstOrDefault(d => d.Id == id);
-        
         if (device == null)
         {
-            Console.WriteLine($"No {deviceType} device found with ID={id}.");
+            Console.WriteLine($"No device found with ID={id}.");
             return;
         }
 
@@ -111,15 +133,16 @@ public class DeviceManager
                         ed.NetworkName = (string)newValue;
                     break;
                 default:
-                    Console.WriteLine($"Invalid property for {deviceType}.");
+                    Console.WriteLine($"Invalid property for device ID={id}.");
                     break;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error editing device: {ex.Message}");
-        }
+        } 
     }
+    
 
     /// <summary>
     /// Turns on a device by type and ID.

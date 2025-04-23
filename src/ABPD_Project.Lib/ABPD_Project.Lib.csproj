@@ -7,4 +7,10 @@
         <RootNamespace>ABPD_ProjectLib</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Update="resources\input.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
