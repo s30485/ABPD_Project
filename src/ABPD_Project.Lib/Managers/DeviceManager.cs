@@ -72,12 +72,9 @@ public class DeviceManager
     /// </summary>
     /// <param name="deviceType">Device type identifier ("SW", "P", "ED", ...).</param>
     /// <param name="id">ID of the device to remove.</param>
-    public void RemoveDevice(string deviceType, int id)
+    public void RemoveDevice(string id) //id now a string value
     {
-        _devices.RemoveAll(d =>
-            (deviceType == "SW" && d is Smartwatch sw && sw.Id == id) ||
-            (deviceType == "P" && d is PersonalComputer pc && pc.Id == id) ||
-            (deviceType == "ED" && d is EmbeddedDevice ed && ed.Id == id));
+        _devices.RemoveAll(d => d.Id == id);
     }
 
     /// <summary>
@@ -87,13 +84,10 @@ public class DeviceManager
     /// <param name="id">ID of the device to modify.</param>
     /// <param name="property">The name of the property to edit ("Battery", "OS", ...).</param>
     /// <param name="newValue">The new value to set.</param>
-    public void EditDeviceData(string deviceType, int id, string property, object newValue)
+    public void EditDeviceData(string id, string property, object newValue)
     {
-        var device = _devices.FirstOrDefault(d =>
-            (deviceType == "SW" && d is Smartwatch sw && sw.Id == id) ||
-            (deviceType == "P" && d is PersonalComputer pc && pc.Id == id) ||
-            (deviceType == "ED" && d is EmbeddedDevice ed && ed.Id == id));
-
+        var device = _devices.FirstOrDefault(d => d.Id == id);
+        
         if (device == null)
         {
             Console.WriteLine($"No {deviceType} device found with ID={id}.");
@@ -132,16 +126,18 @@ public class DeviceManager
     /// </summary>
     /// <param name="deviceType">Device type identifier ("SW", "P", "ED", ...).</param>
     /// <param name="id">ID of the device to turn on.</param>
-    public void TurnOnDevice(string deviceType, int id)
-        => _devices.FirstOrDefault(d => MatchDevice(d, deviceType, id))?.TurnOn();
-
+    
+    public void TurnOnDevice(string id)
+        => _devices.FirstOrDefault(d => d.Id == id)?.TurnOn();
+    
     /// <summary>
     /// Turns off a device by type and ID.
     /// </summary>
     /// <param name="deviceType">Device type identifier ("SW", "P", "ED", ...).</param>
     /// <param name="id">ID of the device to turn off.</param>
-    public void TurnOffDevice(string deviceType, int id)
-        => _devices.FirstOrDefault(d => MatchDevice(d, deviceType, id))?.TurnOff();
+    public void TurnOffDevice(string id)
+        => _devices.FirstOrDefault(d => d.Id == id)?.TurnOff();
+
 
     /// <summary>
     /// Displays all devices to the console.
@@ -161,8 +157,8 @@ public class DeviceManager
         _deviceSaver.Save(_outputFilePath, _devices);
     }
 
-    private bool MatchDevice(Device d, string type, int id)
-        => (type == "SW" && d is Smartwatch sw && sw.Id == id) ||
-           (type == "P" && d is PersonalComputer pc && pc.Id == id) ||
-           (type == "ED" && d is EmbeddedDevice ed && ed.Id == id);
+    // private bool MatchDevice(Device d, string type, int id)
+    //     => (type == "SW" && d is Smartwatch sw && sw.Id == id) ||
+    //        (type == "P" && d is PersonalComputer pc && pc.Id == id) ||
+    //        (type == "ED" && d is EmbeddedDevice ed && ed.Id == id);
 }

@@ -9,7 +9,7 @@ public abstract class Device
     /// <summary>
     /// Gets or sets the id of device.
     /// </summary>
-    public int Id { get; set; }
+    public string Id { get; set; }
     
     /// <summary>
     /// Gets or sets name of device.

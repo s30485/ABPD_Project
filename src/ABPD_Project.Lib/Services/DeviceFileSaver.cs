@@ -13,9 +13,9 @@ public class DeviceFileSaver : IDeviceSaver
         {
             return d switch
             {
-                Smartwatch sw => $"SW,{sw.Id},{sw.Name},{sw.IsTurnedOn},{sw.BatteryPercentage}",
-                PersonalComputer pc => $"P,{pc.Id},{pc.Name},{pc.IsTurnedOn},{pc.OperatingSystem}",
-                EmbeddedDevice ed => $"ED,{ed.Id},{ed.Name},{ed.IpAddress},{ed.NetworkName}",
+                Smartwatch sw => $"{sw.Id},{sw.Name},{sw.IsTurnedOn},{sw.BatteryPercentage}%",
+                PersonalComputer pc => $"{pc.Id},{pc.Name},{pc.IsTurnedOn},{pc.OperatingSystem}",
+                EmbeddedDevice ed => $"{ed.Id},{ed.Name},{ed.IpAddress},{ed.NetworkName}",
                 _ => string.Empty
             };
         }).ToList();
